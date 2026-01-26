@@ -1,0 +1,54 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro 
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+    networks:
+      - traefik-net
+    env_file:
+      - .env
+    labels:
+      traefik.enable: true
+      traefik.http.routers.dashboard.rule: Host(`${hostname}`)
+      traefik.http.routers.dashboard.entrypoints: web
+      traefik.http.routers.dashboard.service: dashboard@internal
+      traefik.http.routers.api.rule: Host(`${hostname}`) && PathPrefix(`/api`)
+      traefik.http.routers.api.entrypoints: web
+      traefik.http.routers.api.service: api@internal
+      traefik.http.routers.api.middlewares: error-pages-middleware
+      traefik.http.middlewares.redirectscheme.redirectscheme.scheme: https
+      traefik.http.middlewares.only-VPN-local.IPAllowlist.sourcerange: ${internalnet}
+      traefik.http.middlewares.only-local.IPAllowlist.sourcerange: ${localnet}
+      traefik.http.middlewares.only-VPN.IPAllowlist.sourcerange: ${vpnnet}
+      traefik.http.middlewares.only-srvnet.IPAllowlist.sourcerange: ${srvnet}
+    depends_on:
+      error-pages: {condition: service_healthy}
+
+  error-pages:
+    image: ghcr.io/tarampampam/error-pages:3 
+    container_name: error-pages
+    restart: unless-stopped
+    environment:
+      TEMPLATE_NAME: app-down
+    labels:
+      traefik.enable: true
+      traefik.http.routers.error-pages-router.rule: HostRegexp(`.+`)
+      traefik.http.routers.error-pages-router.priority: 10
+      traefik.http.routers.error-pages-router.entrypoints: web, websecure
+      traefik.http.routers.error-pages-router.middlewares: error-pages-middleware
+      traefik.http.middlewares.error-pages-middleware.errors.status: 400-599
+      traefik.http.middlewares.error-pages-middleware.errors.service: error-pages-service
+      traefik.http.middlewares.error-pages-middleware.errors.query: /{status}.html
+      traefik.http.services.error-pages-service.loadbalancer.server.port: 8080
+    networks:
+      - traefik-net
+networks:
+  traefik-net:
+    name: traefik-net
+    external: true
