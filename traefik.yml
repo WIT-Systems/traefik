@@ -10,8 +10,24 @@ entryPoints:
     http:
       tls: {}
 
+experimental:
+  plugins:
+    traefik-provider:
+      moduleName: "github.com/im-kulikov/traefik-provider"
+      version: "v0.1.0"
+
 providers:
   docker:
     watch: true
     exposedByDefault: false
-    
+  plugin:
+    traefik-provider:
+      pollInterval: "5s"
+      connTimeout: "15s"
+      endpoints:
+        - host: prod-gate.wintranet.ch
+          apiPort: 80
+          webPort: 443
+          # if you use HTTPS
+          tls:
+            ignoreInsecure: true
