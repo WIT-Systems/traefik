@@ -16,10 +16,10 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.dashboard.rule: Host(`${hostname}`)
-      traefik.http.routers.dashboard.entrypoints: web
+      traefik.http.routers.dashboard.entrypoints: websecure
       traefik.http.routers.dashboard.service: dashboard@internal
       traefik.http.routers.api.rule: Host(`${hostname}`) && PathPrefix(`/api`)
-      traefik.http.routers.api.entrypoints: web
+      traefik.http.routers.api.entrypoints: websecure
       traefik.http.routers.api.service: api@internal
       traefik.http.routers.api.middlewares: error-pages-middleware
       traefik.http.middlewares.redirectscheme.redirectscheme.scheme: https
