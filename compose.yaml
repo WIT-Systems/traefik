@@ -31,7 +31,7 @@ services:
       error-pages: {condition: service_healthy}
 
   error-pages:
-    image: ghcr.io/tarampampam/error-pages:3 
+    image: ghcr.io/tarampampam/error-pages:4 
     container_name: error-pages
     restart: unless-stopped
     environment:
