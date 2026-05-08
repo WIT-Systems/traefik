@@ -14,3 +14,10 @@ providers:
   docker:
     watch: true
     exposedByDefault: false
+
+metrics:
+  prometheus:
+    entryPoint: traefik
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
