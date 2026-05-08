@@ -22,6 +22,9 @@ services:
       traefik.http.routers.api.entrypoints: websecure, web
       traefik.http.routers.api.service: api@internal
       traefik.http.routers.api.middlewares: error-pages-middleware
+      traefik.http.routers.metrics.rule: Host(`${hostname}`) && PathPrefix(`/metrics`)
+      traefik.http.routers.metrics.entrypoints: websecure, web
+      traefik.http.routers.metrics.service: prometheus@internal
       traefik.http.middlewares.redirectscheme.redirectscheme.scheme: https
       traefik.http.middlewares.only-VPN-local.IPAllowlist.sourcerange: ${internalnet}
       traefik.http.middlewares.only-local.IPAllowlist.sourcerange: ${localnet}
